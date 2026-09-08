@@ -282,11 +282,15 @@ def main() -> None:
             by_user[login.lower()] = row
         changed = True
 
-        text = (f"@{login}, готово: {what}.\n\n"
-                f"1. Прими приглашение в организацию `{ORG}` (письмо от GitHub или баннер на github.com).\n"
-                f"2. Открой лабу 0 и нажми **Accept assignment**: {link}\n"
-                f"   Приглашение при этом тоже примется, если ты ещё не успел.\n"
-                f"3. Все лабы курса: https://classroom50.org/{ORG}/{CLASSROOM}\n\n"
+        if what.startswith("уже в организации"):
+            steps = (f"1. Открой лабу 0 и нажми **Accept assignment**: {link}\n"
+                     f"2. Все лабы курса: https://classroom50.org/{ORG}/{CLASSROOM}\n\n")
+        else:
+            steps = (f"1. Прими приглашение в организацию `{ORG}` (письмо от GitHub или баннер на github.com).\n"
+                     f"2. Открой лабу 0 и нажми **Accept assignment**: {link}\n"
+                     f"   Приглашение при этом тоже примется, если ты ещё не успел.\n"
+                     f"3. Все лабы курса: https://classroom50.org/{ORG}/{CLASSROOM}\n\n")
+        text = (f"@{login}, готово: {what}.\n\n" + steps +
                 f"Группа {group} записана в ведомость. Если ошибся группой, напиши преподавателю.")
         reply_and_close(issue, text, ok=True)
         SUMMARY.append(f"| #{n} | @{login} | {group} | {what} |")
