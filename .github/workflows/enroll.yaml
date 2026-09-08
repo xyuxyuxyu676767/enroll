@@ -1,0 +1,55 @@
+name: Enroll
+
+# Self-service enrollment for Classroom 50. A student opens an issue from the
+# "Записаться на курс" form; this workflow invites them into the organization
+# with the classroom team attached (= enrolled), writes their roster row with
+# the section, and answers the issue with the lab0 accept link.
+#
+# Every run processes ALL open enrollment issues, so overlapping runs are
+# cancelled safely: the surviving run picks up whatever is still open.
+
+on:
+  issues:
+    types: [opened]
+  schedule:
+    - cron: "17 * * * *"        # hourly safety net
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report what would happen"
+        type: boolean
+        default: false
+
+# Edit these three for your course.
+env:
+  CLASSROOM: piston-67          # classroom short name (directory in classroom50)
+  ACCEPT_SLUG: lab0             # assignment whose accept link the bot sends
+  DELETE_ISSUES: "false"        # "true": delete processed issues (needs an owner token)
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: enroll
+  cancel-in-progress: true
+
+jobs:
+  enroll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Enroll students from open issues
+        env:
+          # Fine-grained PAT (org resource owner): Organization -> Members: RW;
+          # Repository classroom50 -> Contents: RW; Metadata: R.
+          ENROLL_TOKEN: ${{ secrets.ENROLL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG: ${{ github.repository_owner }}
+          ENROLL_REPO: ${{ github.repository }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: python3 .github/scripts/enroll.py
