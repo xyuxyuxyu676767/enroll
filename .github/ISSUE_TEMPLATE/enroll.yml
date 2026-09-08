@@ -1,0 +1,35 @@
+name: Записаться на курс
+description: Запись в классрум курса. Выбери группу, впиши фамилию и имя, остальное сделает бот.
+title: "Запись на курс"
+labels: ["enroll"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Заявка отправляется от твоего GitHub-аккаунта, поэтому логин вводить не надо.
+        После отправки бот в течение нескольких минут ответит в этой заявке приглашением в организацию курса и ссылкой на лабу 0.
+  - type: dropdown
+    id: group
+    attributes:
+      label: Группа
+      description: Твоя учебная группа по расписанию.
+      options:
+        - ИУ5-31
+        - ИУ5-32
+        - ИУ5-33
+    validations:
+      required: true
+  - type: input
+    id: last_name
+    attributes:
+      label: Фамилия
+      placeholder: Иванов
+    validations:
+      required: true
+  - type: input
+    id: first_name
+    attributes:
+      label: Имя
+      placeholder: Иван
+    validations:
+      required: true
